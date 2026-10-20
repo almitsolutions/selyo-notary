@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Navy & gold — "official seal" palette */
+  --color-bg: #f6f5f0;
+  --color-surface: #ffffff;
+  --color-surface-2: #edece5;
+  --color-ink: #0b1a2e;
+  --color-body: #2f3846;
+  --color-muted: #646e7e;
+  --color-soft: #8a93a2;
+  --color-line: rgb(11 26 46 / 0.12);
+  --color-line-strong: rgb(11 26 46 / 0.2);
+  --color-primary: #0e3558;
+  --color-primary-hover: #154a78;
+  --color-primary-fg: #f4f8fc;
+  --color-accent: #1f6fb8;
+  --color-accent-soft: #e5eff9;
+  --color-gold: #c08a1e;
+  --color-gold-soft: #faf1dc;
+  --color-success: #1a7f5a;
+  --color-success-soft: #e3f4ec;
+  --color-warning: #a8650a;
+  --color-warning-soft: #fcf0dc;
+  --color-danger: #c0362c;
+  --color-danger-soft: #fbe9e7;
+  --color-night: #0a1626;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-script: var(--font-dancing), cursive;
+
+  --radius-sm: 4px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-ink);
+  letter-spacing: -0.035em;
+}
+
+/* Navy panel with light streaks and a thin gold sheen, used behind product mocks */
+.brush {
+  background-color: #0f3358;
+  background-image:
+    linear-gradient(118deg, transparent 0 40%, rgb(120 170 230 / 0.32) 47%, rgb(205 225 248 / 0.4) 52%, transparent 60%),
+    linear-gradient(130deg, transparent 0 62%, rgb(214 170 80 / 0.38) 69%, rgb(242 214 152 / 0.28) 72%, transparent 79%),
+    linear-gradient(110deg, transparent 0 18%, rgb(60 125 205 / 0.32) 30%, transparent 44%),
+    linear-gradient(160deg, #0a2744 0%, #11395f 45%, #1a5088 75%, #0c2d4f 100%);
+}
+
+.brush-soft {
+  background-image:
+    linear-gradient(118deg, transparent 0 40%, rgb(120 170 230 / 0.25) 50%, transparent 64%),
+    linear-gradient(160deg, #0a2340 0%, #133d66 60%, #0a2340 100%);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--color-gold);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+@keyframes scan {
+  0% {
+    top: 8%;
+  }
+  50% {
+    top: 88%;
+  }
+  100% {
+    top: 8%;
+  }
+}
+.animate-scan {
+  animation: scan 2.4s ease-in-out infinite;
 }

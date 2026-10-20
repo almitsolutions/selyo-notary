@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Selyo — online notarization (frontend demo)
 
-## Getting Started
+A phone-friendly Next.js app for remote electronic notarization in the Philippines. Everything works in the browser
+with mock data. There's no backend yet, so the full flow can be demoed before the database is added.
 
-First, run the development server:
+> "Selyo" is a placeholder brand. Rename it in `src/lib/brand.ts`.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Demo script (about 5 minutes)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **/signup** → "Continue with Google". This opens ID verification (consent and ₱99 fee → ID type → scan → face scan → confirm).
+2. **Documents → New document** → "use a sample document" → **Sign now** (draw or type).
+3. **Get it notarized** → act → notary → time → **Request appointment**.
+4. Open **/notary** (sidebar "Open notary portal", or a second tab) → **Accept** the request.
+5. Back as the client → **Join session**. Either:
+   - click **Start autopilot**, and the app plays the notary's part, or
+   - run the notary in a **second tab** at `/notary/session/<id>`. Both tabs stay in sync.
+6. Consent to recording → **Pay** (GCash, Maya or card, all mocked) → the document is sealed → **Download notarized PDF**.
+7. Upload that PDF at **/verify**. It matches by its real SHA-256 fingerprint. Edit the file and it fails.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+"Reset demo data" is in the sidebar and on the Account page.
 
-## Learn More
+## Screens
 
-To learn more about Next.js, take a look at the following resources:
+| Area | Routes |
+|---|---|
+| Marketing | `/`, `/get-notarized`, `/pricing`, `/notaries`, `/notaries/[id]`, `/verify`, `/faqs`, `/for-notaries` |
+| Auth & identity check | `/login`, `/signup`, `/onboarding/verify-id` |
+| Client app | `/app`, `/app/documents`, `/app/documents/new`, `/app/documents/[id]`, `/app/notarizations`, `/app/notarizations/new`, `/app/notarizations/[id]`, `/app/pay/[id]`, `/app/account` |
+| Notary portal | `/notary`, `/notary/appointments`, `/notary/appointments/[id]`, `/notary/register`, `/notary/credits`, `/notary/profile` |
+| Video sessions | `/session/[id]` (client), `/notary/session/[id]` (notary) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · Zustand · pdf-lib + qrcode · lucide-react.
+The design tokens (colors, fonts, radius) are in `src/app/globals.css`.
 
-## Deploy on Vercel
+## How to add the real backend later
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All data goes through **`src/lib/store.ts`**. Screens only call its actions (`addDocument`, `signDocument`,
+`requestNotarization`, `acceptAppointment`, `updateSession`, `requestPayment`, `payNotarization`,
+`sealNotarization`, …) and read the types in **`src/lib/types.ts`**. Those types map one-to-one onto tables:
+`users`, `notaries`, `documents`, `signers`, `notarizations`, `messages`, `activity`, `register_entries`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Demo piece | Replace with |
+|---|---|
+| `store.ts` + localStorage | API routes / server actions on Postgres (e.g. Supabase or Prisma + Neon), with React Query for data fetching |
+| `lib/files.ts` (in-memory PDFs) | Object storage (Supabase Storage / S3) |
+| Cross-tab sync (`storage` event) | Realtime updates (Supabase Realtime, Pusher, or the video SDK's data channel) |
+| `auth-form.tsx` OTP / social buttons | Supabase Auth or Auth.js (email OTP, Google, Apple; eGovPH SSO when available) |
+| `verify-id-wizard.tsx` capture simulation | A KYC provider with PhilSys QR + face liveness |
+| `camera.tsx` + mock remote tile | Daily.co or LiveKit video rooms (recording only after consent) |
+| `pay/[id]` mock checkout | PayMongo (GCash, Maya, cards) with webhooks |
+| Client-side `pdf.ts` | Same code run on the server, plus a real X.509 digital signature and a stored hash |
+| Seed data in `lib/mock/*` | Database seed script |
+
+**Legal note:** going live for real notarizations requires accreditation as an Electronic Notarization Facility
+under A.M. No. 24-10-14-SC and onboarding commissioned Electronic Notaries Public.
